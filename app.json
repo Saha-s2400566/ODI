@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "ODI",
+    "slug": "odi",
+    "version": "0.1.0",
+    "sdkVersion": "54.0.0",
+    "platforms": ["ios","android","web"],
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "jsEngine": "hermes"
+  }
+}
