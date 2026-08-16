@@ -6,6 +6,7 @@ import ChartScreen from '../screens/ChartScreen';
 import ToolsScreen from '../screens/ToolsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import MoreScreen from '../screens/MoreScreen';
+import LearningScreen from '../screens/LearningScreen';
 import DeviceDetails from '../screens/DeviceDetails';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -34,6 +35,7 @@ function MainTabs() {
       <Tab.Screen name="Tools" component={ToolsScreen} />
       <Tab.Screen name="Reports" component={ReportsScreen} />
       <Tab.Screen name="More" component={MoreScreen} />
+      <Tab.Screen name="Learn" component={LearningScreen} />
     </Tab.Navigator>
   );
 }
@@ -43,6 +45,7 @@ export default function MainNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={MainTabs} />
       <Stack.Screen name="DeviceDetails" component={DeviceDetails} />
+      <Stack.Screen name="Learning" component={LearningScreen} />
     </Stack.Navigator>
   );
 }
