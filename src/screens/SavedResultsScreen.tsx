@@ -15,24 +15,29 @@ interface SavedSection {
 export default function SavedResultsScreen({ navigation }: SavedResultsScreenProps) {
   const { results, removeResult } = useSavedResults();
 
+  const sortedResults = React.useMemo(
+    () => [...results].sort((a, b) => b.timestamp - a.timestamp),
+    [results],
+  );
+
   const groupedResults = React.useMemo<SavedSection[]>(() => {
     const sections: SavedSection[] = [
       {
         title: 'Reachability Checks',
-        data: results.filter((item) => item.type === 'reachability'),
+        data: sortedResults.filter((item) => item.type === 'reachability'),
       },
       {
         title: 'DNS Lookups',
-        data: results.filter((item) => item.type === 'dns'),
+        data: sortedResults.filter((item) => item.type === 'dns'),
       },
       {
         title: 'Port Checks',
-        data: results.filter((item) => item.type === 'port'),
+        data: sortedResults.filter((item) => item.type === 'port'),
       },
     ].filter((section) => section.data.length > 0);
 
     return sections;
-  }, [results]);
+  }, [sortedResults]);
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -92,12 +97,14 @@ export default function SavedResultsScreen({ navigation }: SavedResultsScreenPro
     navigation.navigate('SaveResultDetail', { resultId });
   };
 
-  if (results.length === 0) {
+  if (sortedResults.length === 0) {
     return (
       <View style={[styles.container, styles.emptyContainer]}>
-        <MaterialCommunityIcons name="content-save-outline" size={48} color="#475569" />
+        <MaterialCommunityIcons name="content-save-outline" size={52} color="#475569" />
         <Text style={styles.emptyTitle}>No Saved Results</Text>
-        <Text style={styles.emptyText}>Run a diagnostic and save the result to see it here.</Text>
+        <Text style={styles.emptyText}>
+          Run any diagnostic and tap Save Result to keep it here.
+        </Text>
       </View>
     );
   }
@@ -117,15 +124,11 @@ export default function SavedResultsScreen({ navigation }: SavedResultsScreenPro
           <TouchableOpacity
             style={styles.resultCard}
             onPress={() => handleViewDetail(item.id)}
-            activeOpacity={0.8}
+            activeOpacity={0.85}
           >
             <View style={styles.resultContent}>
               <View style={styles.iconBox}>
-                <MaterialCommunityIcons
-                  name={getIcon(item.type)}
-                  size={24}
-                  color="#0ea5e9"
-                />
+                <MaterialCommunityIcons name={getIcon(item.type)} size={24} color="#0ea5e9" />
               </View>
               <View style={styles.resultInfo}>
                 <Text style={styles.resultTypeTitle}>{getTitle(item.type)}</Text>
@@ -137,6 +140,7 @@ export default function SavedResultsScreen({ navigation }: SavedResultsScreenPro
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => handleDelete(item.id)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <MaterialCommunityIcons name="delete-outline" size={20} color="#ef4444" />
             </TouchableOpacity>
@@ -149,10 +153,14 @@ export default function SavedResultsScreen({ navigation }: SavedResultsScreenPro
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0b1020' },
-  emptyContainer: { justifyContent: 'center', alignItems: 'center' },
+  emptyContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
   content: {
     paddingHorizontal: 16,
-    paddingTop: 24,
+    paddingTop: 20,
     paddingBottom: 36,
   },
   sectionHeader: {
@@ -197,6 +205,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  emptyTitle: { fontSize: 18, fontWeight: '600', color: '#fff', marginTop: 16 },
-  emptyText: { fontSize: 14, color: '#9ca3af', marginTop: 8, textAlign: 'center', maxWidth: 200 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#fff', marginTop: 16 },
+  emptyText: { fontSize: 14, color: '#9ca3af', marginTop: 8, textAlign: 'center', lineHeight: 20 },
 });

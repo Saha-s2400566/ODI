@@ -7,14 +7,15 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  FlatList,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { checkPort, getCommonPorts, getServiceName } from '../services/diagnostics';
+import { checkPort, getCommonPorts } from '../services/diagnostics';
 import { useSavedResults } from '../context/SavedResultsContext';
 
 type Props = NativeStackScreenProps<any, 'PortCheck'>;
+
+const quickExamples = ['192.168.1.1', '8.8.8.8', 'example.com'];
 
 export default function PortCheckScreen({ navigation }: Props) {
   const [host, setHost] = useState('192.168.1.1');
@@ -22,31 +23,44 @@ export default function PortCheckScreen({ navigation }: Props) {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { addResult } = useSavedResults();
   const commonPorts = getCommonPorts();
 
   const handleCheck = async () => {
-    if (!host.trim() || !port.trim()) {
-      alert('Please enter host and port');
+    const trimmedHost = host.trim();
+    const trimmedPort = port.trim();
+
+    if (!trimmedHost || !trimmedPort) {
+      setErrorMessage('Please enter both a host and a port value.');
+      setResult(null);
       return;
     }
 
-    const portNum = parseInt(port);
+    const portNum = parseInt(trimmedPort, 10);
     if (isNaN(portNum) || portNum < 1 || portNum > 65535) {
-      alert('Port must be between 1 and 65535');
+      setErrorMessage('Port must be between 1 and 65535.');
+      setResult(null);
       return;
     }
 
+    setErrorMessage('');
     setLoading(true);
     try {
-      const checkResult = await checkPort(host, portNum);
+      const checkResult = await checkPort(trimmedHost, portNum);
       setResult(checkResult);
       setShowPresets(false);
     } catch (error) {
-      setResult({ error: 'Failed to check port' });
+      setResult({ error: 'Failed to check port. Please retry.' });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setResult(null);
+    setErrorMessage('');
+    handleCheck();
   };
 
   const handlePresetSelect = (selectedPort: number) => {
@@ -54,13 +68,13 @@ export default function PortCheckScreen({ navigation }: Props) {
   };
 
   const handleSave = async () => {
-    if (result) {
+    if (result && !result.error) {
       await addResult({
         type: 'port',
         target: `${result.host}:${result.port}`,
         data: result,
       });
-      alert('Result saved!');
+      setErrorMessage('Port result saved successfully.');
     }
   };
 
@@ -76,6 +90,18 @@ export default function PortCheckScreen({ navigation }: Props) {
           placeholderTextColor="#9ca3af"
           editable={!loading}
         />
+
+        <View style={styles.chipRow}>
+          {quickExamples.map((example) => (
+            <TouchableOpacity
+              key={example}
+              style={styles.chip}
+              onPress={() => setHost(example)}
+            >
+              <Text style={styles.chipText}>{example}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         <Text style={styles.label}>Port</Text>
         <View style={styles.portInputRow}>
@@ -95,6 +121,8 @@ export default function PortCheckScreen({ navigation }: Props) {
             <MaterialCommunityIcons name="dots-vertical" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
+
+        {errorMessage ? <Text style={styles.inlineError}>{errorMessage}</Text> : null}
 
         {showPresets && (
           <View style={styles.presetsContainer}>
@@ -135,38 +163,50 @@ export default function PortCheckScreen({ navigation }: Props) {
 
       {result && (
         <View style={styles.resultCard}>
-          <Text style={styles.resultTitle}>Result</Text>
-
-          <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Host:Port</Text>
-            <Text style={styles.resultValue}>
-              {result.host}:{result.port}
-            </Text>
-          </View>
-
-          <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Status</Text>
-            <View style={[styles.statusBadge, { backgroundColor: result.open ? '#10b98120' : '#ef444420' }]}>
-              <Text style={[styles.statusText, { color: result.open ? '#10b981' : '#ef4444' }]}>
-                {result.open ? 'OPEN' : 'CLOSED'}
-              </Text>
+          {result.error ? (
+            <View style={styles.errorCard}>
+              <Text style={styles.errorTitle}>Check Failed</Text>
+              <Text style={styles.errorText}>{result.error}</Text>
+              <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
+                <Text style={styles.retryButtonText}>Retry</Text>
+              </TouchableOpacity>
             </View>
-          </View>
+          ) : (
+            <>
+              <Text style={styles.resultTitle}>Result</Text>
 
-          <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Service</Text>
-            <Text style={styles.resultValue}>{result.service || 'Unknown'}</Text>
-          </View>
+              <View style={styles.resultRow}>
+                <Text style={styles.resultLabel}>Host:Port</Text>
+                <Text style={styles.resultValue}>
+                  {result.host}:{result.port}
+                </Text>
+              </View>
 
-          <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Response Time</Text>
-            <Text style={styles.resultValue}>{result.responseTime} ms</Text>
-          </View>
+              <View style={styles.resultRow}>
+                <Text style={styles.resultLabel}>Status</Text>
+                <View style={[styles.statusBadge, { backgroundColor: result.open ? '#10b98120' : '#ef444420' }]}>
+                  <Text style={[styles.statusText, { color: result.open ? '#10b981' : '#ef4444' }]}>
+                    {result.open ? 'OPEN' : 'CLOSED'}
+                  </Text>
+                </View>
+              </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <MaterialCommunityIcons name="content-save" size={18} color="#fff" />
-            <Text style={styles.saveButtonText}>Save Result</Text>
-          </TouchableOpacity>
+              <View style={styles.resultRow}>
+                <Text style={styles.resultLabel}>Service</Text>
+                <Text style={styles.resultValue}>{result.service || 'Unknown'}</Text>
+              </View>
+
+              <View style={styles.resultRow}>
+                <Text style={styles.resultLabel}>Response Time</Text>
+                <Text style={styles.resultValue}>{result.responseTime} ms</Text>
+              </View>
+
+              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                <MaterialCommunityIcons name="content-save" size={18} color="#fff" />
+                <Text style={styles.saveButtonText}>Save Result</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       )}
     </ScrollView>
@@ -193,6 +233,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#1e293b',
     marginBottom: 14,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  chip: {
+    backgroundColor: '#1e293b',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  chipText: { color: '#cbd5e1', fontSize: 12, fontWeight: '600' },
+  inlineError: {
+    color: '#fca5a5',
+    fontSize: 12,
+    marginBottom: 12,
+    fontWeight: '600',
   },
   portInputRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   portInput: { flex: 1, marginBottom: 0 },
@@ -268,4 +329,21 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   saveButtonText: { color: '#fff', fontWeight: '600' },
+  errorCard: {
+    backgroundColor: '#2a0d12',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#7f1d1d',
+    padding: 14,
+  },
+  errorTitle: { color: '#fca5a5', fontSize: 16, fontWeight: '700', marginBottom: 6 },
+  errorText: { color: '#fecaca', fontSize: 13, lineHeight: 20 },
+  retryButton: {
+    marginTop: 12,
+    backgroundColor: '#ef4444',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  retryButtonText: { color: '#fff', fontWeight: '700' },
 });

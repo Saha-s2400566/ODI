@@ -15,37 +15,50 @@ import { useSavedResults } from '../context/SavedResultsContext';
 
 type Props = NativeStackScreenProps<any, 'Reachability'>;
 
+const quickExamples = ['google.com', '8.8.8.8', 'example.com'];
+
 export default function ReachabilityScreen({ navigation }: Props) {
   const [target, setTarget] = useState('google.com');
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { addResult } = useSavedResults();
 
   const handleCheck = async () => {
-    if (!target.trim()) {
-      alert('Please enter a target hostname or IP');
+    const trimmed = target.trim();
+
+    if (!trimmed) {
+      setErrorMessage('Please enter a target hostname or IP to continue.');
+      setResult(null);
       return;
     }
 
+    setErrorMessage('');
     setLoading(true);
     try {
-      const checkResult = await checkReachability(target);
+      const checkResult = await checkReachability(trimmed);
       setResult(checkResult);
     } catch (error) {
-      setResult({ error: 'Failed to check reachability' });
+      setResult({ error: 'Unable to check reachability right now. Please retry.' });
     } finally {
       setLoading(false);
     }
   };
 
+  const handleRetry = () => {
+    setResult(null);
+    setErrorMessage('');
+    handleCheck();
+  };
+
   const handleSave = async () => {
-    if (result) {
+    if (result && !result.error) {
       await addResult({
         type: 'reachability',
         target: result.target,
         data: result,
       });
-      alert('Result saved!');
+      setErrorMessage('Result saved successfully.');
     }
   };
 
@@ -61,6 +74,20 @@ export default function ReachabilityScreen({ navigation }: Props) {
           placeholderTextColor="#9ca3af"
           editable={!loading}
         />
+
+        <View style={styles.chipRow}>
+          {quickExamples.map((example) => (
+            <TouchableOpacity
+              key={example}
+              style={styles.chip}
+              onPress={() => setTarget(example)}
+            >
+              <Text style={styles.chipText}>{example}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {errorMessage ? <Text style={styles.inlineError}>{errorMessage}</Text> : null}
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -80,41 +107,53 @@ export default function ReachabilityScreen({ navigation }: Props) {
 
       {result && (
         <View style={styles.resultCard}>
-          <Text style={styles.resultTitle}>Result</Text>
-
-          <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Target</Text>
-            <Text style={styles.resultValue}>{result.target}</Text>
-          </View>
-
-          <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Status</Text>
-            <View style={[styles.statusBadge, { backgroundColor: result.reachable ? '#10b98120' : '#ef444420' }]}>
-              <Text style={[styles.statusText, { color: result.reachable ? '#10b981' : '#ef4444' }]}>
-                {result.reachable ? 'Reachable' : 'Unreachable'}
-              </Text>
+          {result.error ? (
+            <View style={styles.errorCard}>
+              <Text style={styles.errorTitle}>Check Failed</Text>
+              <Text style={styles.errorText}>{result.error}</Text>
+              <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
+                <Text style={styles.retryButtonText}>Retry</Text>
+              </TouchableOpacity>
             </View>
-          </View>
+          ) : (
+            <>
+              <Text style={styles.resultTitle}>Result</Text>
 
-          <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Response Time</Text>
-            <Text style={styles.resultValue}>{result.responseTime} ms</Text>
-          </View>
+              <View style={styles.resultRow}>
+                <Text style={styles.resultLabel}>Target</Text>
+                <Text style={styles.resultValue}>{result.target}</Text>
+              </View>
 
-          <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Status Code</Text>
-            <Text style={styles.resultValue}>{result.status}</Text>
-          </View>
+              <View style={styles.resultRow}>
+                <Text style={styles.resultLabel}>Status</Text>
+                <View style={[styles.statusBadge, { backgroundColor: result.reachable ? '#10b98120' : '#ef444420' }]}>
+                  <Text style={[styles.statusText, { color: result.reachable ? '#10b981' : '#ef4444' }]}>
+                    {result.reachable ? 'Reachable' : 'Unreachable'}
+                  </Text>
+                </View>
+              </View>
 
-          <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Method</Text>
-            <Text style={styles.resultValue}>{result.method}</Text>
-          </View>
+              <View style={styles.resultRow}>
+                <Text style={styles.resultLabel}>Response Time</Text>
+                <Text style={styles.resultValue}>{result.responseTime} ms</Text>
+              </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <MaterialCommunityIcons name="content-save" size={18} color="#fff" />
-            <Text style={styles.saveButtonText}>Save Result</Text>
-          </TouchableOpacity>
+              <View style={styles.resultRow}>
+                <Text style={styles.resultLabel}>Status Code</Text>
+                <Text style={styles.resultValue}>{result.status}</Text>
+              </View>
+
+              <View style={styles.resultRow}>
+                <Text style={styles.resultLabel}>Method</Text>
+                <Text style={styles.resultValue}>{result.method}</Text>
+              </View>
+
+              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                <MaterialCommunityIcons name="content-save" size={18} color="#fff" />
+                <Text style={styles.saveButtonText}>Save Result</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       )}
     </ScrollView>
@@ -140,7 +179,28 @@ const styles = StyleSheet.create({
     color: '#fff',
     borderWidth: 1,
     borderColor: '#1e293b',
-    marginBottom: 14,
+    marginBottom: 10,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  chip: {
+    backgroundColor: '#1e293b',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  chipText: { color: '#cbd5e1', fontSize: 12, fontWeight: '600' },
+  inlineError: {
+    color: '#fca5a5',
+    fontSize: 12,
+    marginBottom: 12,
+    fontWeight: '600',
   },
   button: {
     backgroundColor: '#0ea5e9',
@@ -185,4 +245,21 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   saveButtonText: { color: '#fff', fontWeight: '600' },
+  errorCard: {
+    backgroundColor: '#2a0d12',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#7f1d1d',
+    padding: 14,
+  },
+  errorTitle: { color: '#fca5a5', fontSize: 16, fontWeight: '700', marginBottom: 6 },
+  errorText: { color: '#fecaca', fontSize: 13, lineHeight: 20 },
+  retryButton: {
+    marginTop: 12,
+    backgroundColor: '#ef4444',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  retryButtonText: { color: '#fff', fontWeight: '700' },
 });

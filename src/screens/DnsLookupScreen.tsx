@@ -15,27 +15,40 @@ import { useSavedResults } from '../context/SavedResultsContext';
 
 type Props = NativeStackScreenProps<any, 'DnsLookup'>;
 
+const quickExamples = ['google.com', 'example.org', 'github.com'];
+
 export default function DnsLookupScreen({ navigation }: Props) {
   const [hostname, setHostname] = useState('google.com');
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { addResult } = useSavedResults();
 
   const handleLookup = async () => {
-    if (!hostname.trim()) {
-      alert('Please enter a hostname');
+    const trimmed = hostname.trim();
+
+    if (!trimmed) {
+      setErrorMessage('Please enter a hostname before looking up DNS records.');
+      setResult(null);
       return;
     }
 
+    setErrorMessage('');
     setLoading(true);
     try {
-      const lookupResult = await performDnsLookup(hostname);
+      const lookupResult = await performDnsLookup(trimmed);
       setResult(lookupResult);
     } catch (error) {
-      setResult({ error: 'Failed to perform DNS lookup' });
+      setResult({ error: 'Failed to perform DNS lookup. Please retry.' });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setResult(null);
+    setErrorMessage('');
+    handleLookup();
   };
 
   const handleSave = async () => {
@@ -45,7 +58,7 @@ export default function DnsLookupScreen({ navigation }: Props) {
         target: result.hostname,
         data: result,
       });
-      alert('Result saved!');
+      setErrorMessage('DNS result saved successfully.');
     }
   };
 
@@ -61,6 +74,20 @@ export default function DnsLookupScreen({ navigation }: Props) {
           placeholderTextColor="#9ca3af"
           editable={!loading}
         />
+
+        <View style={styles.chipRow}>
+          {quickExamples.map((example) => (
+            <TouchableOpacity
+              key={example}
+              style={styles.chip}
+              onPress={() => setHostname(example)}
+            >
+              <Text style={styles.chipText}>{example}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {errorMessage ? <Text style={styles.inlineError}>{errorMessage}</Text> : null}
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -80,20 +107,23 @@ export default function DnsLookupScreen({ navigation }: Props) {
 
       {result && (
         <View style={styles.resultCard}>
-          <Text style={styles.resultTitle}>DNS Result</Text>
-
-          <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Hostname</Text>
-            <Text style={styles.resultValue}>{result.hostname}</Text>
-          </View>
-
           {result.error ? (
-            <View style={[styles.resultRow, styles.errorRow]}>
-              <MaterialCommunityIcons name="alert-circle" size={20} color="#ef4444" />
+            <View style={styles.errorCard}>
+              <Text style={styles.errorTitle}>Lookup Failed</Text>
               <Text style={styles.errorText}>{result.error}</Text>
+              <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
+                <Text style={styles.retryButtonText}>Retry</Text>
+              </TouchableOpacity>
             </View>
           ) : (
             <>
+              <Text style={styles.resultTitle}>DNS Result</Text>
+
+              <View style={styles.resultRow}>
+                <Text style={styles.resultLabel}>Hostname</Text>
+                <Text style={styles.resultValue}>{result.hostname}</Text>
+              </View>
+
               {result.ipv4.length > 0 && (
                 <View>
                   <Text style={styles.recordTitle}>IPv4 Addresses</Text>
@@ -157,7 +187,28 @@ const styles = StyleSheet.create({
     color: '#fff',
     borderWidth: 1,
     borderColor: '#1e293b',
-    marginBottom: 14,
+    marginBottom: 10,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  chip: {
+    backgroundColor: '#1e293b',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  chipText: { color: '#cbd5e1', fontSize: 12, fontWeight: '600' },
+  inlineError: {
+    color: '#fca5a5',
+    fontSize: 12,
+    marginBottom: 12,
+    fontWeight: '600',
   },
   button: {
     backgroundColor: '#8b5cf6',
@@ -187,10 +238,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#1e293b',
   },
-  errorRow: { backgroundColor: '#ef444420', borderRadius: 8, padding: 12, borderBottomWidth: 0, gap: 8 },
   resultLabel: { fontSize: 14, color: '#9ca3af' },
   resultValue: { fontSize: 14, fontWeight: '600', color: '#fff' },
-  errorText: { color: '#ef4444', fontWeight: '600', flex: 1 },
   recordTitle: { fontSize: 14, fontWeight: '600', color: '#0ea5e9', marginTop: 12, marginBottom: 8 },
   recordItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, gap: 10 },
   recordBadge: { backgroundColor: '#1e293b', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
@@ -208,4 +257,21 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   saveButtonText: { color: '#fff', fontWeight: '600' },
+  errorCard: {
+    backgroundColor: '#2a0d12',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#7f1d1d',
+    padding: 14,
+  },
+  errorTitle: { color: '#fca5a5', fontSize: 16, fontWeight: '700', marginBottom: 6 },
+  errorText: { color: '#fecaca', fontSize: 13, lineHeight: 20 },
+  retryButton: {
+    marginTop: 12,
+    backgroundColor: '#ef4444',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  retryButtonText: { color: '#fff', fontWeight: '700' },
 });
