@@ -37,12 +37,78 @@ export async function getLocalNetworkInfo() {
 export function getSafeMockDevices(baseIp = '192.168.1.42') {
   const network = baseIp.split('.').slice(0, 3).join('.');
   const hosts = [
-    { id: '1', name: 'Office Router', ip: `${network}.1`, online: true, type: 'gateway' },
-    { id: '2', name: 'Primary Workstation', ip: `${network}.10`, online: true, type: 'computer' },
-    { id: '3', name: 'Print Server', ip: `${network}.24`, online: true, type: 'printer' },
-    { id: '4', name: 'NAS Storage', ip: `${network}.42`, online: false, type: 'storage' },
-    { id: '5', name: 'VoIP Phone', ip: `${network}.55`, online: true, type: 'phone' },
-    { id: '6', name: 'Guest Access', ip: `${network}.88`, online: false, type: 'network' },
+    {
+      id: '1',
+      name: 'Office Router',
+      ip: `${network}.1`,
+      online: true,
+      type: 'gateway',
+      health: 'Excellent',
+      risk: 'Low',
+      ports: [80, 443, 53],
+      lastSeen: '2 mins ago',
+      notes: 'Gateway and DHCP service active.'
+    },
+    {
+      id: '2',
+      name: 'Primary Workstation',
+      ip: `${network}.10`,
+      online: true,
+      type: 'computer',
+      health: 'Good',
+      risk: 'Low',
+      ports: [22, 3389, 445],
+      lastSeen: '1 min ago',
+      notes: 'Remote management enabled.'
+    },
+    {
+      id: '3',
+      name: 'Print Server',
+      ip: `${network}.24`,
+      online: true,
+      type: 'printer',
+      health: 'Moderate',
+      risk: 'Medium',
+      ports: [80, 515, 631],
+      lastSeen: '4 mins ago',
+      notes: 'Printing queue is healthy but has one paused job.'
+    },
+    {
+      id: '4',
+      name: 'NAS Storage',
+      ip: `${network}.42`,
+      online: false,
+      type: 'storage',
+      health: 'Offline',
+      risk: 'Medium',
+      ports: [445, 139],
+      lastSeen: '22 mins ago',
+      notes: 'Device unreachable; power or network issue possible.'
+    },
+    {
+      id: '5',
+      name: 'VoIP Phone',
+      ip: `${network}.55`,
+      online: true,
+      type: 'phone',
+      health: 'Good',
+      risk: 'Low',
+      ports: [5060, 5061],
+      lastSeen: 'just now',
+      notes: 'VoIP registration stable.'
+    },
+    {
+      id: '6',
+      name: 'Guest Access',
+      ip: `${network}.88`,
+      online: false,
+      type: 'network',
+      health: 'Offline',
+      risk: 'Low',
+      ports: [80],
+      lastSeen: '1 hour ago',
+      notes: 'Guest segment is currently inactive.'
+    },
   ];
 
   return hosts;
