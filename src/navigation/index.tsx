@@ -1,15 +1,18 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DevicesScreen from '../screens/DevicesScreen';
 import ChartScreen from '../screens/ChartScreen';
 import ToolsScreen from '../screens/ToolsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import MoreScreen from '../screens/MoreScreen';
+import DeviceDetails from '../screens/DeviceDetails';
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
-export default function MainNavigator() {
+function MainTabs() {
   return (
     <Tab.Navigator
       initialRouteName="Devices"
@@ -32,5 +35,14 @@ export default function MainNavigator() {
       <Tab.Screen name="Reports" component={ReportsScreen} />
       <Tab.Screen name="More" component={MoreScreen} />
     </Tab.Navigator>
+  );
+}
+
+export default function MainNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen name="DeviceDetails" component={DeviceDetails} />
+    </Stack.Navigator>
   );
 }

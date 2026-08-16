@@ -1,9 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 export default function DeviceCard({ device }: { device: any }) {
+  const navigation: any = useNavigation();
+
   return (
-    <TouchableOpacity style={styles.card} activeOpacity={0.8}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.8}
+      onPress={() => navigation.navigate('DeviceDetails', { device })}
+    >
       <View style={styles.left}>
         <View style={styles.icon} />
         <View>
