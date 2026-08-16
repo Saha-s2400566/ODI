@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, RefreshControl, TextInput } from 'react-native';
 import DeviceCard from '../components/DeviceCard';
+import StatusBanner from '../components/StatusBanner';
 import { scanNetworkSafe } from '../services/scanner';
 
 export default function DevicesScreen() {
@@ -27,10 +28,17 @@ export default function DevicesScreen() {
     `${d.name} ${d.ip}`.toLowerCase().includes(query.toLowerCase())
   );
 
+  const onlineDevices = filtered.filter((d) => d.online).length;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Devices</Text>
+        <StatusBanner
+          title="Network status: ready"
+          subtitle={`${onlineDevices} devices online • Local diagnostics active`}
+          tone={onlineDevices > 0 ? 'success' : 'warning'}
+        />
         <TextInput
           placeholder="Search by name or IP"
           value={query}
