@@ -1,25 +1,56 @@
 import * as Network from 'expo-network';
+import { buildGatewayFromIp, validateIPv4 } from '../utils/ip';
 
 export async function getLocalNetworkInfo() {
   try {
     const ip = await Network.getIpAddressAsync();
     const state = await Network.getNetworkStateAsync();
-    return { ip, state };
+    const resolvedIp = typeof ip === 'string' && validateIPv4(ip) ? ip : '192.168.1.42';
+    const summary = buildGatewayFromIp(resolvedIp, 24);
+
+    return {
+      ip: resolvedIp,
+      state,
+      prefix: 24,
+      gateway: summary.gateway,
+      mask: summary.subnetMask,
+      network: summary.network,
+      broadcast: summary.broadcast,
+      firstUsable: summary.firstUsable,
+      lastUsable: summary.lastUsable
+    };
   } catch (e) {
-    return { ip: null, state: null };
+    return {
+      ip: '192.168.1.42',
+      state: null,
+      prefix: 24,
+      gateway: '192.168.1.1',
+      mask: '255.255.255.0',
+      network: '192.168.1.0',
+      broadcast: '192.168.1.255',
+      firstUsable: '192.168.1.1',
+      lastUsable: '192.168.1.254'
+    };
   }
 }
 
-// Safe scanner stub: returns local info and a small mocked device list for UI/demo.
-export async function scanNetworkSafe() {
-  const info = await getLocalNetworkInfo();
-  // In a real implementation, replace this with an authorized LAN discovery.
-  const mockDevices = [
-    { id: '1', name: 'Office Router', ip: info.ip || '192.168.1.1', online: true, type: 'gateway' },
-    { id: '2', name: 'Workstation-01', ip: '192.168.1.42', online: true, type: 'computer' },
-    { id: '3', name: 'Printer-HP', ip: '192.168.1.55', online: false, type: 'printer' }
+export function getSafeMockDevices(baseIp = '192.168.1.42') {
+  const network = baseIp.split('.').slice(0, 3).join('.');
+  const hosts = [
+    { id: '1', name: 'Office Router', ip: `${network}.1`, online: true, type: 'gateway' },
+    { id: '2', name: 'Primary Workstation', ip: `${network}.10`, online: true, type: 'computer' },
+    { id: '3', name: 'Print Server', ip: `${network}.24`, online: true, type: 'printer' },
+    { id: '4', name: 'NAS Storage', ip: `${network}.42`, online: false, type: 'storage' },
+    { id: '5', name: 'VoIP Phone', ip: `${network}.55`, online: true, type: 'phone' },
+    { id: '6', name: 'Guest Access', ip: `${network}.88`, online: false, type: 'network' },
   ];
-  return mockDevices;
+
+  return hosts;
 }
 
-export default { getLocalNetworkInfo, scanNetworkSafe };
+export async function scanNetworkSafe() {
+  const info = await getLocalNetworkInfo();
+  return getSafeMockDevices(info.ip);
+}
+
+export default { getLocalNetworkInfo, scanNetworkSafe, getSafeMockDevices };

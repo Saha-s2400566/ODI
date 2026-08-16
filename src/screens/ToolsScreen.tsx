@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { getLocalNetworkInfo } from '../services/scanner';
 
 const tools = [
   { id: 'ping', title: 'Ping gateway', detail: 'Check reachability in 1 click', accent: '#34d399' },
@@ -9,10 +10,24 @@ const tools = [
 ];
 
 export default function ToolsScreen() {
+  const [networkInfo, setNetworkInfo] = useState<any>(null);
+
+  useEffect(() => {
+    getLocalNetworkInfo().then((info) => setNetworkInfo(info));
+  }, []);
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Network Tools</Text>
       <Text style={styles.subtitle}>Safe diagnostic actions for local network review.</Text>
+
+      {networkInfo ? (
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryLabel}>Current network</Text>
+          <Text style={styles.summaryValue}>{networkInfo.ip}</Text>
+          <Text style={styles.summaryMeta}>Gateway: {networkInfo.gateway} • Mask: {networkInfo.mask}</Text>
+        </View>
+      ) : null}
 
       {tools.map((tool) => (
         <TouchableOpacity key={tool.id} activeOpacity={0.8} style={styles.card}>
@@ -33,6 +48,17 @@ const styles = StyleSheet.create({
   content: { padding: 16, paddingTop: 24 },
   title: { color: '#fff', fontSize: 28, fontWeight: '700', marginBottom: 6 },
   subtitle: { color: '#9aa3c7', marginBottom: 20 },
+  summaryCard: {
+    backgroundColor: '#101827',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#1f2937'
+  },
+  summaryLabel: { color: '#9aa3c7', fontSize: 12 },
+  summaryValue: { color: '#fff', fontSize: 20, fontWeight: '700', marginTop: 4 },
+  summaryMeta: { color: '#cbd5e1', marginTop: 4 },
   card: {
     backgroundColor: '#0f1724',
     borderRadius: 14,

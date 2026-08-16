@@ -11,13 +11,12 @@ export function validateIPv4(ip: string) {
 }
 
 export function cidrToMask(prefix: number) {
-  if (prefix < 0 || prefix > 32) throw new Error('CIDR prefix must be 0-32');
-  const mask = [] as number[];
-  for (let i = 0; i < 4; i++) {
-    const rem = Math.max(0, Math.min(8, prefix - i * 8));
-    mask.push(256 - Math.pow(2, 8 - rem));
+  if (!Number.isInteger(prefix) || prefix < 0 || prefix > 32) {
+    throw new Error('CIDR prefix must be an integer between 0 and 32');
   }
-  return mask.join('.');
+
+  const maskNum = prefix === 0 ? 0 : ((0xffffffff << (32 - prefix)) >>> 0);
+  return [(maskNum >>> 24) & 255, (maskNum >>> 16) & 255, (maskNum >>> 8) & 255, maskNum & 255].join('.');
 }
 
 export function ipToNumber(ip: string) {
@@ -31,18 +30,32 @@ export function numberToIp(n: number) {
 
 export function networkRangeFromCidr(ip: string, prefix: number) {
   const ipNum = ipToNumber(ip);
-  const maskNum = prefix === 0 ? 0 : (~0 << (32 - prefix)) >>> 0;
+  const maskNum = prefix === 0 ? 0 : ((0xffffffff << (32 - prefix)) >>> 0);
   const network = ipNum & maskNum;
-  const broadcast = network | (~maskNum >>> 0);
+  const broadcast = network | ((~maskNum) >>> 0);
   const first = network + 1;
   const last = broadcast - 1;
+
   return {
     network: numberToIp(network),
     broadcast: numberToIp(broadcast),
     first: numberToIp(first),
     last: numberToIp(last),
     total: broadcast - network + 1,
-    usable: Math.max(0, broadcast - network - 1),
+    usable: Math.max(0, last - first + 1),
     mask: cidrToMask(prefix)
+  };
+}
+
+export function buildGatewayFromIp(ip: string, prefix = 24) {
+  const range = networkRangeFromCidr(ip, prefix);
+  return {
+    gateway: range.network,
+    subnetMask: range.mask,
+    network: range.network,
+    broadcast: range.broadcast,
+    firstUsable: range.first,
+    lastUsable: range.last,
+    prefix
   };
 }
