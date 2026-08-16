@@ -7,6 +7,7 @@ import ToolsScreen from '../screens/ToolsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import MoreScreen from '../screens/MoreScreen';
 import LearningScreen from '../screens/LearningScreen';
+import ReferenceScreen from '../screens/ReferenceScreen';
 import DeviceDetails from '../screens/DeviceDetails';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -46,6 +47,7 @@ export default function MainNavigator() {
       <Stack.Screen name="MainTabs" component={MainTabs} />
       <Stack.Screen name="DeviceDetails" component={DeviceDetails} />
       <Stack.Screen name="Learning" component={LearningScreen} />
+      <Stack.Screen name="Reference" component={ReferenceScreen} />
     </Stack.Navigator>
   );
 }

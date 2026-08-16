@@ -1,24 +1,34 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const sections = [
-  { title: 'Learning Hub', detail: 'Diagnostics, subnetting, security basics' },
-  { title: 'Reference', detail: 'Common ports, IPv4, troubleshooting guides' },
-  { title: 'Preferences', detail: 'Theme, notifications, default scan settings' },
-  { title: 'Data safety', detail: 'Local-only handling and policy overview' }
+  { title: 'Learning Hub', detail: 'Diagnostics, subnetting, security basics', route: 'Learning' },
+  { title: 'Reference', detail: 'Common ports, IPv4, troubleshooting guides', route: 'Reference' },
+  { title: 'Preferences', detail: 'Theme, notifications, default scan settings', route: null },
+  { title: 'Data safety', detail: 'Local-only handling and policy overview', route: null }
 ];
 
 export default function MoreScreen() {
+  const navigation: any = useNavigation();
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>More</Text>
       <Text style={styles.subtitle}>Learning, references and settings.</Text>
 
       {sections.map((section) => (
-        <View key={section.title} style={styles.card}>
+        <TouchableOpacity
+          key={section.title}
+          style={styles.card}
+          activeOpacity={0.85}
+          onPress={() => {
+            if (section.route) navigation.navigate(section.route);
+          }}
+        >
           <Text style={styles.cardTitle}>{section.title}</Text>
           <Text style={styles.cardDetail}>{section.detail}</Text>
-        </View>
+        </TouchableOpacity>
       ))}
 
       <View style={styles.card}>
