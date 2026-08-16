@@ -4,11 +4,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Theme = 'light' | 'dark';
 
+type ThemeContextValue = {
+  theme: Theme;
+  setTheme: (t: Theme) => void;
+  isDark: boolean;
+};
+
 const STORAGE_KEY = 'odi_theme';
 
-const ThemeContext = createContext({
-  theme: 'dark' as Theme,
-  setTheme: (t: Theme) => {}
+const ThemeContext = createContext<ThemeContextValue>({
+  theme: 'dark',
+  setTheme: () => {},
+  isDark: true,
 });
 
 export const useTheme = () => useContext(ThemeContext);
@@ -29,7 +36,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={{ theme, setTheme, isDark: theme === 'dark' }}>
+      {children}
+    </ThemeContext.Provider>
   );
 };
 
