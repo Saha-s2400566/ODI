@@ -1,53 +1,172 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import DevicesScreen from '../screens/DevicesScreen';
-import ChartScreen from '../screens/ChartScreen';
-import ToolsScreen from '../screens/ToolsScreen';
-import ReportsScreen from '../screens/ReportsScreen';
-import MoreScreen from '../screens/MoreScreen';
-import LearningScreen from '../screens/LearningScreen';
-import ReferenceScreen from '../screens/ReferenceScreen';
-import DeviceDetails from '../screens/DeviceDetails';
-import { Ionicons } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
+// Screens
+import HomeScreen from '../screens/HomeScreen';
+import ToolsIndexScreen from '../screens/ToolsIndexScreen';
+import MoreIndexScreen from '../screens/MoreIndexScreen';
+import ReachabilityScreen from '../screens/ReachabilityScreen';
+import DnsLookupScreen from '../screens/DnsLookupScreen';
+import PortCheckScreen from '../screens/PortCheckScreen';
+import SavedResultsScreen from '../screens/SavedResultsScreen';
+import SaveResultDetailScreen from '../screens/SaveResultDetailScreen';
+import SubnetCalculatorScreen from '../screens/SubnetCalculatorScreen';
+import IpConverterScreen from '../screens/IpConverterScreen';
+import LearningHubScreen from '../screens/LearningHubScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import AboutScreen from '../screens/AboutScreen';
+
+export type RootStackParamList = {
+  Root: undefined;
+  SaveResultDetail: { resultId: string };
+};
+
+export type ToolsStackParamList = {
+  ToolsList: undefined;
+  Reachability: undefined;
+  DnsLookup: undefined;
+  PortCheck: undefined;
+};
+
+export type MoreStackParamList = {
+  MoreList: undefined;
+  SubnetCalculator: undefined;
+  IpConverter: undefined;
+  LearningHub: undefined;
+  Settings: undefined;
+  About: undefined;
+};
+
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+const ToolsStack = createNativeStackNavigator<ToolsStackParamList>();
+const MoreStack = createNativeStackNavigator<MoreStackParamList>();
 
-function MainTabs() {
+function ToolsNavigator() {
+  return (
+    <ToolsStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: '#0f172a' },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontWeight: '600' },
+      }}
+    >
+      <ToolsStack.Screen
+        name="ToolsList"
+        component={ToolsIndexScreen}
+        options={{ title: 'Network Tools' }}
+      />
+      <ToolsStack.Screen
+        name="Reachability"
+        component={ReachabilityScreen}
+        options={{ title: 'Reachability Check' }}
+      />
+      <ToolsStack.Screen
+        name="DnsLookup"
+        component={DnsLookupScreen}
+        options={{ title: 'DNS Lookup' }}
+      />
+      <ToolsStack.Screen
+        name="PortCheck"
+        component={PortCheckScreen}
+        options={{ title: 'Port Check' }}
+      />
+    </ToolsStack.Navigator>
+  );
+}
+
+function MoreNavigator() {
+  return (
+    <MoreStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: '#0f172a' },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontWeight: '600' },
+      }}
+    >
+      <MoreStack.Screen
+        name="MoreList"
+        component={MoreIndexScreen}
+        options={{ title: 'More' }}
+      />
+      <MoreStack.Screen
+        name="SubnetCalculator"
+        component={SubnetCalculatorScreen}
+        options={{ title: 'Subnet Calculator' }}
+      />
+      <MoreStack.Screen
+        name="IpConverter"
+        component={IpConverterScreen}
+        options={{ title: 'IP Converter' }}
+      />
+      <MoreStack.Screen
+        name="LearningHub"
+        component={LearningHubScreen}
+        options={{ title: 'Learning Hub' }}
+      />
+      <MoreStack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ title: 'Settings' }}
+      />
+      <MoreStack.Screen
+        name="About"
+        component={AboutScreen}
+        options={{ title: 'About ODI' }}
+      />
+    </MoreStack.Navigator>
+  );
+}
+
+function TabNavigator() {
   return (
     <Tab.Navigator
-      initialRouteName="Devices"
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarIcon: ({ color, size }) => {
-          let name: any = 'ellipse';
-          if (route.name === 'Devices') name = 'phone-portrait-outline';
-          if (route.name === 'Chart') name = 'map-outline';
-          if (route.name === 'Tools') name = 'construct-outline';
-          if (route.name === 'Reports') name = 'document-text-outline';
-          if (route.name === 'More') name = 'ellipsis-horizontal';
-          return <Ionicons name={name} size={size} color={color} />;
-        }
+          let icon: any = 'home';
+          if (route.name === 'Home') icon = 'home';
+          else if (route.name === 'Tools') icon = 'wrench';
+          else if (route.name === 'Saved') icon = 'content-save';
+          else if (route.name === 'More') icon = 'dots-horizontal';
+          
+          return <MaterialCommunityIcons name={icon} size={size} color={color} />
+        },
+        tabBarActiveTintColor: '#0ea5e9',
+        tabBarInactiveTintColor: '#64748b',
+        tabBarStyle: {
+          backgroundColor: '#0f172a',
+          borderTopColor: '#1e293b',
+        },
       })}
     >
-      <Tab.Screen name="Devices" component={DevicesScreen} />
-      <Tab.Screen name="Chart" component={ChartScreen} />
-      <Tab.Screen name="Tools" component={ToolsScreen} />
-      <Tab.Screen name="Reports" component={ReportsScreen} />
-      <Tab.Screen name="More" component={MoreScreen} />
-      <Tab.Screen name="Learn" component={LearningScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Tools" component={ToolsNavigator} />
+      <Tab.Screen name="Saved" component={SavedResultsScreen} />
+      <Tab.Screen name="More" component={MoreNavigator} />
     </Tab.Navigator>
   );
 }
 
 export default function MainNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MainTabs" component={MainTabs} />
-      <Stack.Screen name="DeviceDetails" component={DeviceDetails} />
-      <Stack.Screen name="Learning" component={LearningScreen} />
-      <Stack.Screen name="Reference" component={ReferenceScreen} />
-    </Stack.Navigator>
+    <NavigationContainer>
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
+        <RootStack.Screen name="Root" component={TabNavigator} />
+        <RootStack.Screen
+          name="SaveResultDetail"
+          component={SaveResultDetailScreen}
+          options={{
+            headerShown: true,
+            headerStyle: { backgroundColor: '#0f172a' },
+            headerTintColor: '#fff',
+            title: 'Result Detail',
+          }}
+        />
+      </RootStack.Navigator>
+    </NavigationContainer>
   );
 }

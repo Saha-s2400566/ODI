@@ -7,13 +7,15 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
+  NativeModules,
 } from 'react-native';
-import { buildTraceroutePreview, getLocalNetworkInfo, probeReachability, getSafeMockDevices } from '../services/scanner';
+import { checkHttpReachability, getLocalNetworkInfo } from '../services/scanner';
+
+const { PingModule } = NativeModules;
 
 const tools = [
-  { id: 'ping', title: 'Ping gateway', detail: 'Check reachability in 1 click', accent: '#34d399' },
-  { id: 'ports', title: 'Port scan', detail: 'Review common services and exposure', accent: '#60a5fa' },
-  { id: 'traceroute', title: 'Traceroute', detail: 'Map the route to a destination', accent: '#a78bfa' },
+  { id: 'icmp_ping', title: 'ICMP Ping (native)', detail: 'Requires Expo development build for real packet-level ping', accent: '#34d399' },
+  { id: 'http_reachability', title: 'HTTP Reachability', detail: 'Checks whether the target responds on HTTP/HTTPS', accent: '#60a5fa' },
   { id: 'wifi', title: 'Wi‑Fi check', detail: 'Inspect current network context', accent: '#fbbf24' },
 ];
 
@@ -38,41 +40,39 @@ export default function ToolsScreen() {
 
     await new Promise((resolve) => setTimeout(resolve, 450));
 
-    if (toolId === 'ping') {
+    if (toolId === 'icmp_ping') {
       const target = targetHost || info.gateway;
-      const result = await probeReachability(target);
-      const packetLoss = result.reachable ? 0 : 100;
+      try {
+        const payload = await PingModule.ping(target, 4, 2000);
+        const lines = [
+          `ICMP Ping result for ${payload.target || target}`,
+          `Packets: ${payload.transmitted || 0} transmitted, ${payload.received || 0} received, ${Number(payload.packetLoss || 0).toFixed(1)}% loss`,
+          `RTT: min ${Number(payload.minMs || 0).toFixed(1)} ms / avg ${Number(payload.avgMs || 0).toFixed(1)} ms / max ${Number(payload.maxMs || 0).toFixed(1)} ms`,
+          payload.success ? 'Status: success' : 'Status: failure',
+        ];
+
+        if (payload.output) {
+          lines.push('---');
+          lines.push(payload.output);
+        }
+
+        setToolOutput(lines.join('\n'));
+      } catch (error: any) {
+        setToolOutput(`ICMP Ping failed: ${error?.message || 'Unknown native ping error'}\nTarget: ${target}`);
+      }
+    }
+
+    if (toolId === 'http_reachability') {
+      const target = targetHost || info.gateway;
+      const result = await checkHttpReachability(target);
       const lines = [
-        `PING ${target} (${target}) 56(84) bytes of data.`,
+        `HTTP Reachability check for ${target}`,
+        `Attempting HTTP/HTTPS response on port ${80}`,
         result.reachable
-          ? `64 bytes from ${target}: icmp_seq=1 ttl=64 time=${result.responseTime} ms`
-          : `Request timeout for ${target}`,
-        `--- ${target} ping statistics ---`,
-        `1 packets transmitted, ${result.reachable ? 1 : 0} received, ${packetLoss}% packet loss`,
-        `round-trip min/avg/max = ${result.responseTime} ms / ${Math.max(result.responseTime, 1)} ms / ${Math.max(result.responseTime + 8, 10)} ms`,
-        `status: ${result.status}`,
+          ? `Reachable: ${result.status} in ${result.responseTime} ms`
+          : `Unreachable: connection timed out after ${result.responseTime} ms`,
+        `Note: this is HTTP/HTTPS reachability, not ICMP ping.`,
       ];
-      setToolOutput(lines.join('\n'));
-    }
-
-    if (toolId === 'ports') {
-      const devices = await getSafeMockDevices(info.ip);
-      const openPorts = devices
-        .filter((device: any) => device.online)
-        .flatMap((device: any) => device.ports.map((port: number) => `${device.name}:${port}`))
-        .slice(0, 8);
-
-      setToolOutput(
-        openPorts.length > 0
-          ? `Open services detected:\n${openPorts.join('\n')}`
-          : 'No open services detected on the current local network view.'
-      );
-    }
-
-    if (toolId === 'traceroute') {
-      const target = targetHost || info.gateway;
-      const route = await buildTraceroutePreview(target, info);
-      const lines = [`traceroute to ${target} (${target}), 30 hops max`, ...route];
       setToolOutput(lines.join('\n'));
     }
 

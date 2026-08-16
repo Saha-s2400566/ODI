@@ -195,7 +195,7 @@ export function getSafeMockDevices(baseIp = '192.168.1.42') {
   });
 }
 
-export async function probeReachability(target: string, port = 80) {
+export async function checkHttpReachability(target: string, port = 80) {
   const candidates = [
     `http://${target}:${port}`,
     `https://${target}:${port}`,
@@ -239,6 +239,8 @@ export async function probeReachability(target: string, port = 80) {
   };
 }
 
+export const probeReachability = checkHttpReachability;
+
 export async function buildTraceroutePreview(target: string, info?: any) {
   const localInfo = info || (await getLocalNetworkInfo());
   const gateway = localInfo.gateway || '192.168.1.1';
@@ -249,17 +251,17 @@ export async function buildTraceroutePreview(target: string, info?: any) {
     .filter((ip) => ip && ip !== localInfo.ip && ip !== gateway && ip !== publicTarget)
     .slice(0, 3);
 
-  const gatewayProbe = await probeReachability(gateway);
+  const gatewayProbe = await checkHttpReachability(gateway);
   const localHops = await Promise.all(
     routeCandidates.map(async (ip, index) => ({
       hop: index + 2,
       ip,
       kind: 'local' as const,
-      status: await probeReachability(ip),
+      status: await checkHttpReachability(ip),
     }))
   );
 
-  const targetStatus = await probeReachability(publicTarget);
+  const targetStatus = await checkHttpReachability(publicTarget);
   const formatted: string[] = [
     `traceroute to ${publicTarget} (${publicTarget})`,
     'Gateway → Local → Public internet',
