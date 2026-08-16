@@ -242,30 +242,41 @@ export async function probeReachability(target: string, port = 80) {
 export async function buildTraceroutePreview(target: string, info?: any) {
   const localInfo = info || (await getLocalNetworkInfo());
   const gateway = localInfo.gateway || '192.168.1.1';
+  const publicTarget = target || '8.8.8.8';
   const knownDevices = await discoverLocalDevices({ aggressive: false });
   const routeCandidates = knownDevices
     .map((device) => device.ip)
-    .filter((ip) => ip && ip !== localInfo.ip && ip !== gateway && ip !== target)
+    .filter((ip) => ip && ip !== localInfo.ip && ip !== gateway && ip !== publicTarget)
     .slice(0, 3);
 
-  const initialHops = [{ hop: 1, ip: gateway, status: await probeReachability(gateway) }];
-  const routeHops = await Promise.all(
+  const gatewayProbe = await probeReachability(gateway);
+  const localHops = await Promise.all(
     routeCandidates.map(async (ip, index) => ({
       hop: index + 2,
       ip,
+      kind: 'local' as const,
       status: await probeReachability(ip),
     }))
   );
 
-  const hops = [...initialHops, ...routeHops];
+  const targetStatus = await probeReachability(publicTarget);
+  const formatted: string[] = [
+    `traceroute to ${publicTarget} (${publicTarget})`,
+    'Gateway → Local → Public internet',
+    `1  ${gateway}  ${gatewayProbe.responseTime} ms  gateway ${gatewayProbe.reachable ? 'reachable' : 'timeout'}`,
+  ];
 
-  const targetStatus = await probeReachability(target);
-  hops.push({ hop: hops.length + 1, ip: target, status: targetStatus });
+  if (localHops.length > 0) {
+    formatted.push('Local network:');
+    for (const hop of localHops) {
+      formatted.push(`${hop.hop}  ${hop.ip}  ${hop.status.responseTime} ms  ${hop.status.reachable ? 'reachable' : 'timeout'}`);
+    }
+  }
 
-  return hops.map((hop) => {
-    const label = hop.status.reachable ? 'reachable' : 'timeout';
-    return `${hop.hop}  ${hop.ip}  ${hop.status.responseTime} ms  ${label}`;
-  });
+  formatted.push('Public internet:');
+  formatted.push(`${localHops.length + 2}  ${publicTarget}  ${targetStatus.responseTime} ms  public ${targetStatus.reachable ? 'reachable' : 'timeout'}`);
+
+  return formatted;
 }
 
 export async function scanNetworkSafe() {

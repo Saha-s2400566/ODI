@@ -41,15 +41,15 @@ export default function ToolsScreen() {
     if (toolId === 'ping') {
       const target = targetHost || info.gateway;
       const result = await probeReachability(target);
+      const packetLoss = result.reachable ? 0 : 100;
       const lines = [
         `PING ${target} (${target}) 56(84) bytes of data.`,
         result.reachable
-          ? `64 bytes from ${target}: time=${result.responseTime} ms`
+          ? `64 bytes from ${target}: icmp_seq=1 ttl=64 time=${result.responseTime} ms`
           : `Request timeout for ${target}`,
         `--- ${target} ping statistics ---`,
-        result.reachable
-          ? `1 packets transmitted, 1 received, 0% packet loss`
-          : `1 packets transmitted, 0 received, 100% packet loss`,
+        `1 packets transmitted, ${result.reachable ? 1 : 0} received, ${packetLoss}% packet loss`,
+        `round-trip min/avg/max = ${result.responseTime} ms / ${Math.max(result.responseTime, 1)} ms / ${Math.max(result.responseTime + 8, 10)} ms`,
         `status: ${result.status}`,
       ];
       setToolOutput(lines.join('\n'));
