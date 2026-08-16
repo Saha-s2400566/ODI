@@ -2,10 +2,16 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = NativeStackScreenProps<any, 'ToolsList'>;
 
 export default function ToolsIndexScreen({ navigation }: Props) {
+  const { isDark } = useTheme();
+  const colors = isDark
+    ? { background: '#0b1020', card: '#0f172a', border: '#1e293b', text: '#fff', secondary: '#9ca3af' }
+    : { background: '#f8fafc', card: '#ffffff', border: '#dbeafe', text: '#0f172a', secondary: '#475569' };
+
   const tools = [
     {
       id: 'reachability',
@@ -31,12 +37,12 @@ export default function ToolsIndexScreen({ navigation }: Props) {
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.sectionTitle}>Network Tools</Text>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Network Tools</Text>
       {tools.map((tool) => (
         <TouchableOpacity
           key={tool.id}
-          style={styles.toolCard}
+          style={[styles.toolCard, { backgroundColor: colors.card, borderColor: colors.border }]}
           onPress={() => {
             if (tool.id === 'reachability') navigation.push('Reachability');
             else if (tool.id === 'dns') navigation.push('DnsLookup');
@@ -48,10 +54,10 @@ export default function ToolsIndexScreen({ navigation }: Props) {
             <MaterialCommunityIcons name={tool.icon as any} size={28} color={tool.color} />
           </View>
           <View style={styles.toolInfo}>
-            <Text style={styles.toolTitle}>{tool.title}</Text>
-            <Text style={styles.toolDesc}>{tool.desc}</Text>
+            <Text style={[styles.toolTitle, { color: colors.text }]}>{tool.title}</Text>
+            <Text style={[styles.toolDesc, { color: colors.secondary }]}>{tool.desc}</Text>
           </View>
-          <MaterialCommunityIcons name="chevron-right" size={24} color="#64748b" />
+          <MaterialCommunityIcons name="chevron-right" size={24} color={colors.secondary} />
         </TouchableOpacity>
       ))}
     </ScrollView>
@@ -59,21 +65,19 @@ export default function ToolsIndexScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1020' },
+  container: { flex: 1 },
   content: { padding: 16, paddingBottom: 32 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#fff', marginBottom: 12 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
   toolCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#1e293b',
   },
   toolIcon: { width: 48, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   toolInfo: { flex: 1, marginLeft: 12 },
-  toolTitle: { fontSize: 16, fontWeight: '600', color: '#fff' },
-  toolDesc: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
+  toolTitle: { fontSize: 16, fontWeight: '600' },
+  toolDesc: { fontSize: 12, marginTop: 2 },
 });

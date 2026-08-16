@@ -2,11 +2,32 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useTheme } from '../context/ThemeContext';
 
 interface HomeScreenProps
   extends BottomTabScreenProps<any, 'Home'> {}
 
 export default function HomeScreen({ navigation }: HomeScreenProps) {
+  const { isDark } = useTheme();
+
+  const colors = isDark
+    ? {
+        background: '#0b1020',
+        card: '#0f172a',
+        border: '#1e293b',
+        text: '#fff',
+        secondary: '#9ca3af',
+        muted: '#cbd5e1',
+      }
+    : {
+        background: '#f8fafc',
+        card: '#ffffff',
+        border: '#dbeafe',
+        text: '#0f172a',
+        secondary: '#475569',
+        muted: '#334155',
+      };
+
   const tools = [
     {
       id: 'reachability',
@@ -74,18 +95,21 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={styles.content}
+    >
       <View style={styles.header}>
         <MaterialCommunityIcons name="network" size={40} color="#0ea5e9" />
-        <Text style={styles.title}>ODI</Text>
-        <Text style={styles.subtitle}>Navigate your network</Text>
+        <Text style={[styles.title, { color: colors.text }]}>ODI</Text>
+        <Text style={[styles.subtitle, { color: colors.secondary }]}>Navigate your network</Text>
       </View>
 
-      <Text style={styles.sectionTitle}>Quick Diagnostics</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Diagnostics</Text>
       {tools.map((tool) => (
         <TouchableOpacity
           key={tool.id}
-          style={styles.toolCard}
+          style={[styles.toolCard, { backgroundColor: colors.card, borderColor: colors.border }]}
           onPress={() => handleToolPress(tool.id)}
           activeOpacity={0.8}
         >
@@ -93,29 +117,29 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             <MaterialCommunityIcons name={tool.icon as any} size={28} color={tool.color} />
           </View>
           <View style={styles.toolInfo}>
-            <Text style={styles.toolTitle}>{tool.title}</Text>
-            <Text style={styles.toolDesc}>{tool.desc}</Text>
+            <Text style={[styles.toolTitle, { color: colors.text }]}>{tool.title}</Text>
+            <Text style={[styles.toolDesc, { color: colors.secondary }]}>{tool.desc}</Text>
           </View>
-          <MaterialCommunityIcons name="chevron-right" size={24} color="#64748b" />
+          <MaterialCommunityIcons name="chevron-right" size={24} color={colors.secondary} />
         </TouchableOpacity>
       ))}
 
-      <Text style={styles.sectionTitle}>More</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>More</Text>
       {moreItems.map((item) => (
         <TouchableOpacity
           key={item.id}
-          style={styles.moreCard}
+          style={[styles.moreCard, { backgroundColor: colors.card, borderColor: colors.border }]}
           onPress={() => handleMorePress(item.id)}
           activeOpacity={0.8}
         >
-          <View style={styles.moreIcon}>
+          <View style={[styles.moreIcon, { backgroundColor: isDark ? '#1e293b' : '#e2e8f0' }]}>
             <MaterialCommunityIcons name={item.icon as any} size={24} color="#0ea5e9" />
           </View>
           <View style={styles.moreInfo}>
-            <Text style={styles.moreTitle}>{item.title}</Text>
-            <Text style={styles.moreDesc}>{item.desc}</Text>
+            <Text style={[styles.moreTitle, { color: colors.text }]}>{item.title}</Text>
+            <Text style={[styles.moreDesc, { color: colors.secondary }]}>{item.desc}</Text>
           </View>
-          <MaterialCommunityIcons name="chevron-right" size={24} color="#64748b" />
+          <MaterialCommunityIcons name="chevron-right" size={24} color={colors.secondary} />
         </TouchableOpacity>
       ))}
     </ScrollView>
@@ -123,42 +147,38 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1020' },
+  container: { flex: 1 },
   content: { padding: 16, paddingBottom: 32 },
   header: {
     alignItems: 'center',
     marginBottom: 32,
     marginTop: 16,
   },
-  title: { fontSize: 32, fontWeight: '800', color: '#fff', marginTop: 8 },
-  subtitle: { fontSize: 14, color: '#9ca3af', marginTop: 4 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#fff', marginBottom: 12, marginTop: 20 },
+  title: { fontSize: 32, fontWeight: '800', marginTop: 8 },
+  subtitle: { fontSize: 14, marginTop: 4 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12, marginTop: 20 },
   toolCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#1e293b',
   },
   toolIcon: { width: 48, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   toolInfo: { flex: 1, marginLeft: 12 },
-  toolTitle: { fontSize: 16, fontWeight: '600', color: '#fff' },
-  toolDesc: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
+  toolTitle: { fontSize: 16, fontWeight: '600' },
+  toolDesc: { fontSize: 12, marginTop: 2 },
   moreCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#1e293b',
   },
-  moreIcon: { width: 40, height: 40, borderRadius: 8, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1e293b' },
+  moreIcon: { width: 40, height: 40, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
   moreInfo: { flex: 1, marginLeft: 12 },
-  moreTitle: { fontSize: 15, fontWeight: '600', color: '#fff' },
-  moreDesc: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
+  moreTitle: { fontSize: 15, fontWeight: '600' },
+  moreDesc: { fontSize: 12, marginTop: 2 },
 });

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
 
 const learningTopics = [
   {
@@ -36,45 +37,50 @@ const learningTopics = [
 ];
 
 export default function LearningHubScreen() {
+  const { isDark } = useTheme();
+  const colors = isDark
+    ? { background: '#0b1020', card: '#0f172a', border: '#1e293b', text: '#fff', secondary: '#9ca3af', muted: '#dbeafe', icon: '#1e293b' }
+    : { background: '#f8fafc', card: '#ffffff', border: '#dbeafe', text: '#0f172a', secondary: '#475569', muted: '#334155', icon: '#e2e8f0' };
+
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
 
   const topic = learningTopics.find((t) => t.id === selectedTopic);
 
   if (selectedTopic && topic) {
     return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
         <TouchableOpacity style={styles.backButton} onPress={() => setSelectedTopic(null)}>
           <MaterialCommunityIcons name="chevron-left" size={24} color="#0ea5e9" />
-          <Text style={styles.backText}>Back</Text>
+          <Text style={[styles.backText, { color: '#0ea5e9' }]}>Back</Text>
         </TouchableOpacity>
 
-        <View style={styles.detailCard}>
-          <Text style={styles.detailTitle}>{topic.title}</Text>
-          <Text style={styles.detailContent}>{topic.content}</Text>
+        <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border }]}> 
+          <Text style={[styles.detailTitle, { color: colors.text }]}>{topic.title}</Text>
+          <Text style={[styles.detailContent, { color: colors.muted }]}>{topic.content}</Text>
         </View>
       </ScrollView>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.sectionTitle}>Learning Topics</Text>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Learning Topics</Text>
 
       {learningTopics.map((item) => (
         <TouchableOpacity
           key={item.id}
-          style={styles.topicCard}
+          style={[styles.topicCard, { backgroundColor: colors.card, borderColor: colors.border }]}
           onPress={() => setSelectedTopic(item.id)}
           activeOpacity={0.8}
         >
-          <View style={styles.topicIcon}>
+          <View style={[styles.topicIcon, { backgroundColor: colors.icon }]}>
             <MaterialCommunityIcons name="school" size={24} color="#8b5cf6" />
           </View>
           <View style={styles.topicInfo}>
-            <Text style={styles.topicTitle}>{item.title}</Text>
-            <Text style={styles.topicDesc}>{item.desc}</Text>
+            <Text style={[styles.topicTitle, { color: colors.text }]}>{item.title}</Text>
+            <Text style={[styles.topicDesc, { color: colors.secondary }]}>{item.desc}</Text>
           </View>
-          <MaterialCommunityIcons name="chevron-right" size={24} color="#64748b" />
+          <MaterialCommunityIcons name="chevron-right" size={24} color={colors.secondary} />
         </TouchableOpacity>
       ))}
     </ScrollView>
@@ -82,44 +88,39 @@ export default function LearningHubScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1020' },
+  container: { flex: 1 },
   content: { padding: 16, paddingBottom: 32 },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
   },
-  backText: { color: '#0ea5e9', fontWeight: '600', marginLeft: 4 },
+  backText: { fontWeight: '600', marginLeft: 4 },
   detailCard: {
-    backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#1e293b',
   },
-  detailTitle: { fontSize: 22, fontWeight: '700', color: '#fff', marginBottom: 12 },
-  detailContent: { fontSize: 14, color: '#dbeafe', lineHeight: 22 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#fff', marginBottom: 12 },
+  detailTitle: { fontSize: 22, fontWeight: '700', marginBottom: 12 },
+  detailContent: { fontSize: 14, lineHeight: 22 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
   topicCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#1e293b',
   },
   topicIcon: {
     width: 48,
     height: 48,
     borderRadius: 8,
-    backgroundColor: '#1e293b',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   topicInfo: { flex: 1 },
-  topicTitle: { fontSize: 15, fontWeight: '600', color: '#fff' },
-  topicDesc: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
+  topicTitle: { fontSize: 15, fontWeight: '600' },
+  topicDesc: { fontSize: 12, marginTop: 2 },
 });

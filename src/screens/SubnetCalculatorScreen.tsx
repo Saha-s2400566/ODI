@@ -2,8 +2,30 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { validateIPv4, cidrToMask, networkRangeFromCidr } from '../utils/ip';
+import { useTheme } from '../context/ThemeContext';
 
 export default function SubnetCalculatorScreen() {
+  const { isDark } = useTheme();
+  const colors = isDark
+    ? {
+        background: '#0b1020',
+        card: '#0f172a',
+        border: '#1e293b',
+        input: '#050f1b',
+        text: '#fff',
+        secondary: '#9ca3af',
+        muted: '#dbeafe',
+      }
+    : {
+        background: '#f8fafc',
+        card: '#ffffff',
+        border: '#dbeafe',
+        input: '#f1f5f9',
+        text: '#0f172a',
+        secondary: '#475569',
+        muted: '#334155',
+      };
+
   const [ip, setIp] = useState('192.168.1.10');
   const [cidr, setCidr] = useState('24');
   const [result, setResult] = useState<any>(null);
@@ -36,24 +58,24 @@ export default function SubnetCalculatorScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.card}>
-        <Text style={styles.label}>IP Address</Text>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}> 
+        <Text style={[styles.label, { color: colors.text }]}>IP Address</Text>
         <TextInput
           value={ip}
           onChangeText={setIp}
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
           placeholder="192.168.1.10"
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor={colors.secondary}
         />
 
-        <Text style={styles.label}>CIDR Prefix</Text>
+        <Text style={[styles.label, { color: colors.text }]}>CIDR Prefix</Text>
         <TextInput
           value={cidr}
           onChangeText={setCidr}
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
           placeholder="24"
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor={colors.secondary}
           keyboardType="number-pad"
         />
 
@@ -64,50 +86,45 @@ export default function SubnetCalculatorScreen() {
       </View>
 
       {result && (
-        <View style={styles.resultCard}>
-          <Text style={styles.resultTitle}>Results</Text>
+        <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}> 
+          <Text style={[styles.resultTitle, { color: colors.text }]}>Results</Text>
 
-          <ResultRow label="Network Address" value={result.network} />
-          <ResultRow label="Subnet Mask" value={result.mask} />
-          <ResultRow label="Broadcast Address" value={result.broadcast} />
-          <ResultRow label="First Usable" value={result.firstUsable} />
-          <ResultRow label="Last Usable" value={result.lastUsable} />
-          <ResultRow label="Usable Hosts" value={result.usableHosts.toString()} />
-          <ResultRow label="CIDR Notation" value={`${result.ip}/${result.cidr}`} />
+          <ResultRow label="Network Address" value={result.network} isDark={isDark} />
+          <ResultRow label="Subnet Mask" value={result.mask} isDark={isDark} />
+          <ResultRow label="Broadcast Address" value={result.broadcast} isDark={isDark} />
+          <ResultRow label="First Usable" value={result.firstUsable} isDark={isDark} />
+          <ResultRow label="Last Usable" value={result.lastUsable} isDark={isDark} />
+          <ResultRow label="Usable Hosts" value={result.usableHosts.toString()} isDark={isDark} />
+          <ResultRow label="CIDR Notation" value={`${result.ip}/${result.cidr}`} isDark={isDark} />
         </View>
       )}
     </ScrollView>
   );
 }
 
-function ResultRow({ label, value }: { label: string; value: string }) {
+function ResultRow({ label, value, isDark }: { label: string; value: string; isDark: boolean }) {
   return (
-    <View style={styles.resultRow}>
-      <Text style={styles.resultLabel}>{label}</Text>
-      <Text style={styles.resultValue}>{value}</Text>
+    <View style={[styles.resultRow, { borderBottomColor: isDark ? '#1e293b' : '#dbeafe' }]}> 
+      <Text style={[styles.resultLabel, { color: isDark ? '#9ca3af' : '#475569' }]}>{label}</Text>
+      <Text style={[styles.resultValue, { color: isDark ? '#dbeafe' : '#334155' }]}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1020' },
+  container: { flex: 1 },
   content: { padding: 16, paddingBottom: 32 },
   card: {
-    backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#1e293b',
   },
-  label: { fontSize: 14, fontWeight: '600', color: '#fff', marginBottom: 8, marginTop: 12 },
+  label: { fontSize: 14, fontWeight: '600', marginBottom: 8, marginTop: 12 },
   input: {
-    backgroundColor: '#050f1b',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: '#fff',
     borderWidth: 1,
-    borderColor: '#1e293b',
     marginBottom: 12,
   },
   button: {
@@ -121,21 +138,18 @@ const styles = StyleSheet.create({
   },
   buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
   resultCard: {
-    backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 16,
     marginTop: 16,
     borderWidth: 1,
-    borderColor: '#1e293b',
   },
-  resultTitle: { fontSize: 18, fontWeight: '700', color: '#fff', marginBottom: 12 },
+  resultTitle: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
   resultRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
   },
-  resultLabel: { fontSize: 14, color: '#9ca3af' },
-  resultValue: { fontSize: 14, fontWeight: '600', color: '#dbeafe', textAlign: 'right', flex: 1 },
+  resultLabel: { fontSize: 14 },
+  resultValue: { fontSize: 14, fontWeight: '600', textAlign: 'right', flex: 1 },
 });

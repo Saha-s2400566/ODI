@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -46,11 +47,13 @@ const ToolsStack = createNativeStackNavigator<ToolsStackParamList>();
 const MoreStack = createNativeStackNavigator<MoreStackParamList>();
 
 function ToolsNavigator() {
+  const { isDark } = useTheme();
+
   return (
     <ToolsStack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: '#0f172a' },
-        headerTintColor: '#fff',
+        headerStyle: { backgroundColor: isDark ? '#0f172a' : '#ffffff' },
+        headerTintColor: isDark ? '#fff' : '#0f172a',
         headerTitleStyle: { fontWeight: '600' },
       }}
     >
@@ -79,11 +82,13 @@ function ToolsNavigator() {
 }
 
 function MoreNavigator() {
+  const { isDark } = useTheme();
+
   return (
     <MoreStack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: '#0f172a' },
-        headerTintColor: '#fff',
+        headerStyle: { backgroundColor: isDark ? '#0f172a' : '#ffffff' },
+        headerTintColor: isDark ? '#fff' : '#0f172a',
         headerTitleStyle: { fontWeight: '600' },
       }}
     >
@@ -122,6 +127,8 @@ function MoreNavigator() {
 }
 
 function TabNavigator() {
+  const { isDark } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -132,14 +139,14 @@ function TabNavigator() {
           else if (route.name === 'Tools') icon = 'wrench';
           else if (route.name === 'Saved') icon = 'content-save';
           else if (route.name === 'More') icon = 'dots-horizontal';
-          
+
           return <MaterialCommunityIcons name={icon} size={size} color={color} />
         },
         tabBarActiveTintColor: '#0ea5e9',
         tabBarInactiveTintColor: '#64748b',
         tabBarStyle: {
-          backgroundColor: '#0f172a',
-          borderTopColor: '#1e293b',
+          backgroundColor: isDark ? '#0f172a' : '#ffffff',
+          borderTopColor: isDark ? '#1e293b' : '#dbeafe',
         },
       })}
     >
@@ -152,6 +159,8 @@ function TabNavigator() {
 }
 
 export default function MainNavigator() {
+  const { isDark } = useTheme();
+
   return (
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
@@ -161,8 +170,8 @@ export default function MainNavigator() {
           component={SaveResultDetailScreen}
           options={{
             headerShown: true,
-            headerStyle: { backgroundColor: '#0f172a' },
-            headerTintColor: '#fff',
+            headerStyle: { backgroundColor: isDark ? '#0f172a' : '#ffffff' },
+            headerTintColor: isDark ? '#fff' : '#0f172a',
             title: 'Result Detail',
           }}
         />

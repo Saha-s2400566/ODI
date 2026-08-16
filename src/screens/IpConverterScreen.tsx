@@ -1,8 +1,30 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
 
 export default function IpConverterScreen() {
+  const { isDark } = useTheme();
+  const colors = isDark
+    ? {
+        background: '#0b1020',
+        card: '#0f172a',
+        border: '#1e293b',
+        input: '#050f1b',
+        text: '#fff',
+        secondary: '#9ca3af',
+        muted: '#dbeafe',
+      }
+    : {
+        background: '#f8fafc',
+        card: '#ffffff',
+        border: '#dbeafe',
+        input: '#f1f5f9',
+        text: '#0f172a',
+        secondary: '#475569',
+        muted: '#334155',
+      };
+
   const [decimal, setDecimal] = useState('192.168.1.10');
   const [result, setResult] = useState<any>(null);
 
@@ -26,15 +48,15 @@ export default function IpConverterScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.card}>
-        <Text style={styles.label}>Decimal IP</Text>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}> 
+        <Text style={[styles.label, { color: colors.text }]}>Decimal IP</Text>
         <TextInput
           value={decimal}
           onChangeText={setDecimal}
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
           placeholder="192.168.1.10"
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor={colors.secondary}
         />
 
         <TouchableOpacity style={styles.button} onPress={handleConvert}>
@@ -44,27 +66,27 @@ export default function IpConverterScreen() {
       </View>
 
       {result && (
-        <View style={styles.resultCard}>
-          <Text style={styles.resultTitle}>Conversions</Text>
+        <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}> 
+          <Text style={[styles.resultTitle, { color: colors.text }]}>Conversions</Text>
 
-          <View style={styles.conversionBox}>
-            <Text style={styles.conversionLabel}>Decimal</Text>
-            <Text style={styles.conversionValue}>{result.decimal}</Text>
+          <View style={[styles.conversionBox, { backgroundColor: colors.input, borderColor: colors.border }]}> 
+            <Text style={[styles.conversionLabel, { color: colors.secondary }]}>Decimal</Text>
+            <Text style={[styles.conversionValue, { color: colors.muted }]}>{result.decimal}</Text>
           </View>
 
-          <View style={styles.conversionBox}>
-            <Text style={styles.conversionLabel}>Binary</Text>
-            <Text style={styles.conversionValue}>{result.binary}</Text>
+          <View style={[styles.conversionBox, { backgroundColor: colors.input, borderColor: colors.border }]}> 
+            <Text style={[styles.conversionLabel, { color: colors.secondary }]}>Binary</Text>
+            <Text style={[styles.conversionValue, { color: colors.muted }]}>{result.binary}</Text>
           </View>
 
-          <View style={styles.conversionBox}>
-            <Text style={styles.conversionLabel}>Hexadecimal</Text>
-            <Text style={styles.conversionValue}>{result.hex}</Text>
+          <View style={[styles.conversionBox, { backgroundColor: colors.input, borderColor: colors.border }]}> 
+            <Text style={[styles.conversionLabel, { color: colors.secondary }]}>Hexadecimal</Text>
+            <Text style={[styles.conversionValue, { color: colors.muted }]}>{result.hex}</Text>
           </View>
 
-          <View style={styles.conversionBox}>
-            <Text style={styles.conversionLabel}>Integer</Text>
-            <Text style={styles.conversionValue}>{result.integer}</Text>
+          <View style={[styles.conversionBox, { backgroundColor: colors.input, borderColor: colors.border }]}> 
+            <Text style={[styles.conversionLabel, { color: colors.secondary }]}>Integer</Text>
+            <Text style={[styles.conversionValue, { color: colors.muted }]}>{result.integer}</Text>
           </View>
         </View>
       )}
@@ -73,24 +95,19 @@ export default function IpConverterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1020' },
+  container: { flex: 1 },
   content: { padding: 16, paddingBottom: 32 },
   card: {
-    backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#1e293b',
   },
-  label: { fontSize: 14, fontWeight: '600', color: '#fff', marginBottom: 8 },
+  label: { fontSize: 14, fontWeight: '600', marginBottom: 8 },
   input: {
-    backgroundColor: '#050f1b',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: '#fff',
     borderWidth: 1,
-    borderColor: '#1e293b',
     marginBottom: 14,
   },
   button: {
@@ -104,27 +121,22 @@ const styles = StyleSheet.create({
   },
   buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
   resultCard: {
-    backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 16,
     marginTop: 16,
     borderWidth: 1,
-    borderColor: '#1e293b',
   },
-  resultTitle: { fontSize: 18, fontWeight: '700', color: '#fff', marginBottom: 12 },
+  resultTitle: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
   conversionBox: {
-    backgroundColor: '#050f1b',
     borderRadius: 8,
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#1e293b',
   },
-  conversionLabel: { fontSize: 12, color: '#9ca3af', marginBottom: 6 },
+  conversionLabel: { fontSize: 12, marginBottom: 6 },
   conversionValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#dbeafe',
     fontFamily: 'monospace',
   },
 });

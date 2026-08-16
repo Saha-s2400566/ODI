@@ -2,18 +2,38 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSavedResults } from '../context/SavedResultsContext';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = NativeStackScreenProps<{ SaveResultDetail: { resultId: string } }, 'SaveResultDetail'>
 
 export default function SaveResultDetailScreen({ route, navigation }: Props) {
+  const { isDark } = useTheme();
+  const colors = isDark
+    ? {
+        background: '#0b1020',
+        card: '#0f172a',
+        border: '#1e293b',
+        text: '#fff',
+        secondary: '#9ca3af',
+        muted: '#dbeafe',
+      }
+    : {
+        background: '#f8fafc',
+        card: '#ffffff',
+        border: '#dbeafe',
+        text: '#0f172a',
+        secondary: '#475569',
+        muted: '#334155',
+      };
+
   const { resultId } = route.params;
   const { getResult } = useSavedResults();
   const result = getResult(resultId);
 
   if (!result) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Result not found</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}> 
+        <Text style={[styles.errorText, { color: '#ef4444' }]}>Result not found</Text>
       </View>
     );
   }
@@ -89,16 +109,16 @@ export default function SaveResultDetailScreen({ route, navigation }: Props) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}> 
+        <Text style={[styles.cardTitle, { color: colors.text }]}> 
           {result.type === 'reachability'
             ? 'Reachability Check'
             : result.type === 'dns'
             ? 'DNS Lookup'
             : 'Port Check'}
         </Text>
-        <Text style={styles.cardDate}>{formatDate(result.timestamp)}</Text>
+        <Text style={[styles.cardDate, { color: colors.secondary }]}>{formatDate(result.timestamp)}</Text>
 
         <View style={styles.details}>{renderResultContent()}</View>
       </View>
@@ -106,27 +126,25 @@ export default function SaveResultDetailScreen({ route, navigation }: Props) {
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function DetailRow({ label, value, isDark }: { label: string; value: string; isDark: boolean }) {
   return (
-    <View style={styles.detailRow}>
-      <Text style={styles.detailLabel}>{label}</Text>
-      <Text style={styles.detailValue}>{value}</Text>
+    <View style={[styles.detailRow, { borderBottomColor: isDark ? '#1e293b' : '#dbeafe' }]}> 
+      <Text style={[styles.detailLabel, { color: isDark ? '#9ca3af' : '#475569' }]}>{label}</Text>
+      <Text style={[styles.detailValue, { color: isDark ? '#dbeafe' : '#334155' }]}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1020' },
+  container: { flex: 1 },
   content: { padding: 16, paddingBottom: 32 },
   card: {
-    backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#1e293b',
   },
-  cardTitle: { fontSize: 22, fontWeight: '700', color: '#fff' },
-  cardDate: { fontSize: 12, color: '#9ca3af', marginTop: 4 },
+  cardTitle: { fontSize: 22, fontWeight: '700' },
+  cardDate: { fontSize: 12, marginTop: 4 },
   details: { marginTop: 16 },
   sectionLabel: { fontSize: 14, fontWeight: '600', color: '#0ea5e9', marginTop: 12, marginBottom: 8 },
   detailRow: {
@@ -134,9 +152,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
   },
-  detailLabel: { fontSize: 14, color: '#9ca3af' },
-  detailValue: { fontSize: 14, fontWeight: '600', color: '#dbeafe', maxWidth: '50%', textAlign: 'right' },
+  detailLabel: { fontSize: 14 },
+  detailValue: { fontSize: 14, fontWeight: '600', maxWidth: '50%', textAlign: 'right' },
   errorText: { color: '#ef4444', fontSize: 16, textAlign: 'center', marginTop: 32 },
 });

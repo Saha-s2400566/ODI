@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, SectionList } from 'react-nat
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { useSavedResults, DiagnosticResult } from '../context/SavedResultsContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface SavedResultsScreenProps
   extends BottomTabScreenProps<any, 'Saved'> {}
@@ -14,6 +15,25 @@ interface SavedSection {
 
 export default function SavedResultsScreen({ navigation }: SavedResultsScreenProps) {
   const { results, removeResult } = useSavedResults();
+  const { isDark } = useTheme();
+
+  const colors = isDark
+    ? {
+        background: '#0b1020',
+        card: '#0f172a',
+        border: '#1e293b',
+        text: '#fff',
+        secondary: '#9ca3af',
+        muted: '#dbeafe',
+      }
+    : {
+        background: '#f8fafc',
+        card: '#ffffff',
+        border: '#dbeafe',
+        text: '#0f172a',
+        secondary: '#475569',
+        muted: '#334155',
+      };
 
   const sortedResults = React.useMemo(
     () => [...results].sort((a, b) => b.timestamp - a.timestamp),
@@ -99,10 +119,10 @@ export default function SavedResultsScreen({ navigation }: SavedResultsScreenPro
 
   if (sortedResults.length === 0) {
     return (
-      <View style={[styles.container, styles.emptyContainer]}>
+      <View style={[styles.container, styles.emptyContainer, { backgroundColor: colors.background }]}>
         <MaterialCommunityIcons name="content-save-outline" size={52} color="#475569" />
-        <Text style={styles.emptyTitle}>No Saved Results</Text>
-        <Text style={styles.emptyText}>
+        <Text style={[styles.emptyTitle, { color: colors.text }]}>No Saved Results</Text>
+        <Text style={[styles.emptyText, { color: colors.secondary }]}>
           Run any diagnostic and tap Save Result to keep it here.
         </Text>
       </View>
@@ -110,7 +130,7 @@ export default function SavedResultsScreen({ navigation }: SavedResultsScreenPro
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SectionList
         sections={groupedResults}
         keyExtractor={(item) => item.id}
@@ -118,23 +138,23 @@ export default function SavedResultsScreen({ navigation }: SavedResultsScreenPro
         stickySectionHeadersEnabled={false}
         showsVerticalScrollIndicator={false}
         renderSectionHeader={({ section }) => (
-          <Text style={styles.sectionHeader}>{section.title}</Text>
+          <Text style={[styles.sectionHeader, { color: isDark ? '#7dd3fc' : '#0369a1' }]}>{section.title}</Text>
         )}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.resultCard}
+            style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}
             onPress={() => handleViewDetail(item.id)}
             activeOpacity={0.85}
           >
             <View style={styles.resultContent}>
-              <View style={styles.iconBox}>
+              <View style={[styles.iconBox, { backgroundColor: isDark ? '#1e293b' : '#e2e8f0' }]}>
                 <MaterialCommunityIcons name={getIcon(item.type)} size={24} color="#0ea5e9" />
               </View>
               <View style={styles.resultInfo}>
-                <Text style={styles.resultTypeTitle}>{getTitle(item.type)}</Text>
-                <Text style={styles.resultTarget}>{item.target}</Text>
-                <Text style={styles.resultSummary}>{getResultSummary(item)}</Text>
-                <Text style={styles.resultDate}>{formatDate(item.timestamp)}</Text>
+                <Text style={[styles.resultTypeTitle, { color: colors.text }]}>{getTitle(item.type)}</Text>
+                <Text style={[styles.resultTarget, { color: colors.muted }]}>{item.target}</Text>
+                <Text style={[styles.resultSummary, { color: colors.secondary }]}>{getResultSummary(item)}</Text>
+                <Text style={[styles.resultDate, { color: isDark ? '#64748b' : '#64748b' }]}>{formatDate(item.timestamp)}</Text>
               </View>
             </View>
             <TouchableOpacity
@@ -152,7 +172,7 @@ export default function SavedResultsScreen({ navigation }: SavedResultsScreenPro
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1020' },
+  container: { flex: 1 },
   emptyContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -166,7 +186,6 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#7dd3fc',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginTop: 8,
@@ -174,12 +193,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   resultCard: {
-    backgroundColor: '#0f172a',
     borderRadius: 14,
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#1e293b',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -189,22 +206,21 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 10,
-    backgroundColor: '#1e293b',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   resultInfo: { flex: 1 },
-  resultTypeTitle: { fontSize: 15, fontWeight: '600', color: '#fff' },
-  resultTarget: { fontSize: 12, color: '#dbeafe', marginTop: 3 },
-  resultSummary: { fontSize: 12, color: '#9ca3af', marginTop: 3 },
-  resultDate: { fontSize: 11, color: '#64748b', marginTop: 5 },
+  resultTypeTitle: { fontSize: 15, fontWeight: '600' },
+  resultTarget: { fontSize: 12, marginTop: 3 },
+  resultSummary: { fontSize: 12, marginTop: 3 },
+  resultDate: { fontSize: 11, marginTop: 5 },
   deleteButton: {
     padding: 10,
     marginLeft: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#fff', marginTop: 16 },
-  emptyText: { fontSize: 14, color: '#9ca3af', marginTop: 8, textAlign: 'center', lineHeight: 20 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', marginTop: 16 },
+  emptyText: { fontSize: 14, marginTop: 8, textAlign: 'center', lineHeight: 20 },
 });
