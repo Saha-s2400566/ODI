@@ -14,6 +14,12 @@ export default function MoreIndexScreen({ navigation }: Props) {
 
   const items = [
     {
+      id: 'settings',
+      title: 'Settings',
+      icon: 'cog',
+      desc: 'App preferences',
+    },
+    {
       id: 'subnet',
       title: 'Subnet Calculator',
       icon: 'calculator',
@@ -30,12 +36,6 @@ export default function MoreIndexScreen({ navigation }: Props) {
       title: 'Learning Hub',
       icon: 'school',
       desc: 'Network fundamentals',
-    },
-    {
-      id: 'settings',
-      title: 'Settings',
-      icon: 'cog',
-      desc: 'App preferences',
     },
     {
       id: 'about',
@@ -57,12 +57,24 @@ export default function MoreIndexScreen({ navigation }: Props) {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={[styles.content, { paddingTop: 20 }]}
+      showsVerticalScrollIndicator={false}
+    >
       <Text style={[styles.sectionTitle, { color: colors.text }]}>More</Text>
       {items.map((item) => (
         <TouchableOpacity
           key={item.id}
-          style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
+          style={[
+            styles.card,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              borderLeftWidth: item.id === 'settings' ? 3 : 1,
+              borderLeftColor: item.id === 'settings' ? '#0ea5e9' : colors.border,
+            },
+          ]}
           onPress={() => handlePress(item.id)}
           activeOpacity={0.8}
         >

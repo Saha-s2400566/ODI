@@ -126,7 +126,8 @@ export default function SaveResultDetailScreen({ route, navigation }: Props) {
   );
 }
 
-function DetailRow({ label, value, isDark }: { label: string; value: string; isDark: boolean }) {
+function DetailRow({ label, value }: { label: string; value: string }) {
+  const { isDark } = useTheme();
   return (
     <View style={[styles.detailRow, { borderBottomColor: isDark ? '#1e293b' : '#dbeafe' }]}> 
       <Text style={[styles.detailLabel, { color: isDark ? '#9ca3af' : '#475569' }]}>{label}</Text>
