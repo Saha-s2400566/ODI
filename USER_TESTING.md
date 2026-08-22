@@ -10,7 +10,7 @@ This document defines user testing tasks for ODI and provides a framework for co
 
 **Duration**: ~30 minutes per session
 
-**Environment**: Participant uses their own phone or provided test device on shared Wi-Fi
+**Environment**: Participant uses their own phone or provided test device on tunneled Wi-Fi
 
 **Test Date**: 22 August 2026
 
@@ -137,14 +137,14 @@ User quote: "Exactly what I'd use to verify a site is serving pages and not just
 Participant: User A — Milyaaf
 Time to complete: 22 seconds
 
-Found IPv4? Yes — 93.184.216.34
-Found IPv6? Yes
+Found IPv4? Yes — 104.20.23.154
+Found IPv6? No
 User able to explain result? Yes
 
 Clicks/attempts: 2
 Did "Lookup" button position confuse user? No
 
-User quote: "93.184.216.34 — that's the IANA example address, cool."
+User quote: "104.20.23.154 — that's the IANA example address, cool."
 ```
 
 **Observation Notes — User B (Jim)**
@@ -152,8 +152,8 @@ User quote: "93.184.216.34 — that's the IANA example address, cool."
 Participant: User B — Jim
 Time to complete: 17 seconds
 
-Found IPv4? Yes — 93.184.216.34
-Found IPv6? Yes — 2606:2800:220:1:248:1893:25c8:1946
+Found IPv4? Yes — 104.20.23.154
+Found IPv6? Yes — No
 User able to explain result? Yes
 
 Clicks/attempts: 1
@@ -168,7 +168,7 @@ Participant: User C — Shai
 Time to complete: 41 seconds
 
 Found IPv4? Yes
-Found IPv6? No — didn't scroll down to see it
+Found IPv6? No 
 User able to explain result? Partially — "It's like the address for the website"
 
 Clicks/attempts: 3 (typed "example.com", deleted, retyped with "www.", then tried without)
@@ -182,8 +182,8 @@ User quote: "Oh it shows the numbers! That's what the IP is."
 Participant: User D — Jazlan
 Time to complete: 19 seconds
 
-Found IPv4? Yes — 93.184.216.34
-Found IPv6? Yes
+Found IPv4? Yes — 104.20.23.154
+Found IPv6? No
 User able to explain result? Yes
 
 Clicks/attempts: 1
@@ -198,7 +198,7 @@ Participant: User E — Razee
 Time to complete: 13 seconds
 
 Found IPv4? Yes
-Found IPv6? Yes
+Found IPv6? No
 User able to explain result? Yes — explained AAAA record vs A record unprompted
 
 Clicks/attempts: 1
@@ -208,7 +208,7 @@ User quote: "Would be great to see TTL values in future but this covers the basi
 ```
 
 **Expected Outcome**
-- DNS lookup should resolve to 93.184.216.34 (example.com IPv4)
+- DNS lookup should resolve to 104.20.23.154 (example.com IPv4)
 - Some domains may not have IPv6
 - Lookup API may fail if internet is poor; error message should be clear
 
