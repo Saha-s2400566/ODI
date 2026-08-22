@@ -32,7 +32,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     {
       id: 'reachability',
       title: 'Reachability Check',
-      icon: 'network-check',
+      icon: 'check-network',
       desc: 'Test HTTP/HTTPS access to a host',
       color: '#3b82f6',
     },
@@ -46,7 +46,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     {
       id: 'port',
       title: 'Port Check',
-      icon: 'port',
+      icon: 'ethernet',
       desc: 'Check if a port is open and accessible',
       color: '#ec4899',
     },
