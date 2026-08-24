@@ -9,7 +9,7 @@ The name **ODI** is inspired by the traditional Maldivian *odi*, a vessel histor
 ODI focuses on three practical diagnostic tools — **HTTP Reachability Check, DNS Lookup, and Port Check** — supported by persistent diagnostic history, networking calculators, educational content, and configurable light/dark themes.
 
 **Tagline:** *Navigate Your Network.*
-**GITHUB LINK** - https://github.com/Saha-s2400566/ODI
+
 ---
 
 ## 1. Project Description
@@ -245,7 +245,7 @@ The selected theme is stored locally so that the preference persists between app
 
 ### Screenshot — Dark Mode
 
-> **INSERT SCREENSHOT HERE**
+> ![ODI Dark Mode](screenshots/dark-mode.png)
 
 **Figure 11. ODI interface in dark mode, demonstrating persistent application theme state.**
 
@@ -278,7 +278,6 @@ Nested stack navigators are then used to open individual diagnostic tools, utili
 ### Screenshot — Main Navigation
 
 > ![ODI Main Navigation](screenshots/navigation.png)
-
 
 **Figure 13. ODI bottom-tab navigation providing access to Home, Tools, Saved Results and More.**
 
@@ -427,7 +426,7 @@ Install the following before running ODI:
 ## Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Saha-s2400566/ODI.git
 cd ODI
 ```
 
@@ -665,7 +664,6 @@ Contains:
 * Qualitative findings
 * Recommendations
 * Reflection
-* User-testing evidence
 
 ---
 
@@ -675,20 +673,20 @@ Before submitting the repository, replace every screenshot placeholder above wit
 
 Recommended evidence:
 
-* [ ] **Figure 1:** Home screen
-* [ ] **Figure 2:** Reachability Check with result
-* [ ] **Figure 3:** DNS Lookup with resolved records
-* [ ] **Figure 4:** Port Check with result
-* [ ] **Figure 5:** Saved Results history
-* [ ] **Figure 6:** Saved Result Details
-* [ ] **Figure 7:** Subnet Calculator with calculated result
-* [ ] **Figure 8:** IP Converter with converted values
-* [ ] **Figure 9:** Learning Hub
-* [ ] **Figure 10:** Settings screen
-* [ ] **Figure 11:** Dark mode
-* [ ] **Figure 12:** About ODI
-* [ ] **Figure 13:** Bottom navigation
-* [ ] **Figure 14:** Persistence evidence after application restart
+* [x] **Figure 1:** Home screen
+* [x] **Figure 2:** Reachability Check with result
+* [x] **Figure 3:** DNS Lookup with resolved records
+* [x] **Figure 4:** Port Check with result
+* [x] **Figure 5:** Saved Results history
+* [x] **Figure 6:** Saved Result Details
+* [x] **Figure 7:** Subnet Calculator with calculated result
+* [x] **Figure 8:** IP Converter with converted values
+* [x] **Figure 9:** Learning Hub
+* [x] **Figure 10:** Settings screen
+* [x] **Figure 11:** Dark mode
+* [x] **Figure 12:** About ODI
+* [x] **Figure 13:** Bottom navigation
+* [x] **Figure 14:** Persistence evidence after application restart
 
 For stronger evidence, screenshots should show **completed interactions/results**, rather than only empty input screens.
 
@@ -696,12 +694,12 @@ For stronger evidence, screenshots should show **completed interactions/results*
 
 # 21. Project Information
 
-**Application:** ODI — Navigate Your Network
-**Module:** Mobile Applications (UFCF7H-15-3)
-**Framework:** React Native / Expo
-**Language:** TypeScript
-**Student:** Hawwa Saha Nasih
-**Student ID:** S2400566
+**Application:** ODI — Navigate Your Network  
+**Module:** Mobile Applications (UFCF7H-15-3)  
+**Framework:** React Native / Expo  
+**Language:** TypeScript  
+**Student:** Hawwa Saha Nasih  
+**Student ID:** S2400566  
 
 ---
 
