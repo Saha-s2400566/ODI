@@ -9,7 +9,7 @@ The name **ODI** is inspired by the traditional Maldivian *odi*, a vessel histor
 ODI focuses on three practical diagnostic tools — **HTTP Reachability Check, DNS Lookup, and Port Check** — supported by persistent diagnostic history, networking calculators, educational content, and configurable light/dark themes.
 
 **Tagline:** *Navigate Your Network.*
-
+**GITHUB LINK** - https://github.com/Saha-s2400566/ODI
 ---
 
 ## 1. Project Description
